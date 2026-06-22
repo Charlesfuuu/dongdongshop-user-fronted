@@ -683,7 +683,7 @@
                             <li data-target="#myCarousel" data-slide-to="2"></li>
                         </ol>
                         <div class="carousel-inner">
-                            <div v-for="l1 in list1" class="item">
+                            <div v-for="(l1, index) in list1" :class="['item', {active: index === 0}]">
                                 <a href="http://baidu2.wypxj.com/">
                                     <img :src="l1.pic"/>
                                 </a>
@@ -1582,16 +1582,14 @@
         data:{
             list1:[], // 轮播图
             list2:[], // 今日推荐
-            list3:[], // 猜你喜欢
         },
         methods:{
             queryContentMap(){
                 this.$http.get("/content/queryContentMap")
                     .then(resp=>{
-                        if(resp.data.code="10000"){
-                            this.list1 = resp.data.data.c1;
-                            this.list2 = resp.data.data.c2;
-                            this.list3 = resp.data.data.c3;
+                        if(resp.data.code=="200"){
+                            this.list1 = resp.data.data.list1;
+                            this.list2 = resp.data.data.list2;
                         }
                     })
             }
