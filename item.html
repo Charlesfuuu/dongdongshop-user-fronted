@@ -151,23 +151,17 @@
 					<div class="zoom">
 						<!--默认第一个预览-->
 						<div id="preview" class="spec-preview">
-							<span class="jqzoom"><img jqimg="img/_/b1.png" src="img/_/s1.png" /></span>
+							<span class="jqzoom"><img :jqimg="itemImages.length ? itemImages[0].url : ''" :src="itemImages.length ? itemImages[0].url : ''" /></span>
 						</div>
-						<!--下方的缩略图-->
+						<!--下方的缩略图：循环数据库中的商品图片-->
 						<div class="spec-scroll">
 							<a class="prev">&lt;</a>
 							<!--左右按钮-->
 							<div class="items">
 								<ul>
-									<li><img src="img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s1.png" bimg="img/_/b1.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s2.png" bimg="img/_/b2.png" onmousemove="preview(this)" /></li>
-									<li><img src="img/_/s3.png" bimg="img/_/b3.png" onmousemove="preview(this)" /></li>
+									<li v-for="(img, index) in itemImages" :key="index">
+										<img :src="img.url" :bimg="img.url" onmousemove="preview(this)" />
+									</li>
 								</ul>
 							</div>
 							<a class="next">&gt;</a>
@@ -984,11 +978,29 @@ $(function(){
 				}
 			}
 		},
+		computed:{
+			// 解析数据库返回的 itemImages(JSON 字符串)，过滤掉没有 url 的项
+			itemImages(){
+				var imgs = this.goodsVo.goodsDesc && this.goodsVo.goodsDesc.itemImages;
+				if(!imgs){ return []; }
+				if(typeof imgs === "string"){
+					try{ imgs = JSON.parse(imgs); }catch(e){ return []; }
+				}
+				return Array.isArray(imgs) ? imgs.filter(it => it && it.url) : [];
+			}
+		},
 		methods:{
 			queryById(id){
 				this.$http.get("/goods/queryById/"+id)
 						.then(resp=>{
 							this.goodsVo=resp.data.data;
+							// 缩略图为异步渲染，DOM 更新后再初始化滚动按钮和放大镜
+							this.$nextTick(()=>{
+								if(typeof initSpecScroll === "function"){
+									initSpecScroll();
+								}
+								$(".jqzoom").jqueryzoom({xzoom:400,yzoom:400});
+							});
 						})
 			}
 
