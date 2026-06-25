@@ -394,15 +394,15 @@
 			orderBtn:function(){
 				this.$http.post("/order/createOrder", {addressId:59,payType:1})
 						.then(resp=>{ // result:
-							if(resp.data.code="10000"){
+							if(resp.data.code="200"){
 								// 获取参数
 								var map1 = resp.data.data;
-								var outTradeNo = map1.outTradeNo;
-								var totalAmount = map1.totalAmount;
-								var orderName = map1.orderName;
+								var outTradeNo = map1.orderId;
+								var totalAmount = map1.totalMoney;
+								var orderName = map1.title;
 
 								// 发送支付请求。
-								location.href="http://127.0.0.1:10011/pay/alipay?outTradeNo="+outTradeNo+"&totalAmount="+totalAmount+"&orderName="+orderName;
+								location.href="http://127.0.0.1:10010/pay/alipay?outTradeNo="+outTradeNo+"&totalAmount="+totalAmount+"&orderName="+orderName;
 
 							}
 						})
